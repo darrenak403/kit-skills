@@ -95,16 +95,16 @@ if (-not (Test-Path -LiteralPath $DestinationRoot -PathType Container)) {
 # only their identity, delegation description, and developer instructions.
 $AgentPolicies = @{
     'researcher' = @{ Tier = 'cheap'; ReadOnly = $true; NeedsWebSearch = $true }
-    'tester' = @{ Tier = 'cheap'; ReadOnly = $true; NeedsBash = $true }
+    'tester' = @{ Tier = 'cheap'; ReadOnly = $true; NeedsBash = $true; ExtraTools = @('Task', 'Agent') }
     'project-manager' = @{ Tier = 'cheap'; ReadOnly = $false; ExtraTools = @('TaskCreate') }
-    'fullstack-developer' = @{ Tier = 'standard'; ReadOnly = $false }
+    'fullstack-developer' = @{ Tier = 'standard'; ReadOnly = $false; ExtraTools = @('Task', 'Agent') }
     'docs-manager' = @{ Tier = 'standard'; ReadOnly = $false }
-    'ui-ux-designer' = @{ Tier = 'standard'; ReadOnly = $false; ExtraTools = @('WebSearch') }
+    'ui-ux-designer' = @{ Tier = 'standard'; ReadOnly = $false; ExtraTools = @('WebSearch', 'Task', 'Agent') }
     'git-manager' = @{ Tier = 'standard'; ReadOnly = $false }
-    'brainstormer' = @{ Tier = 'standard'; ReadOnly = $true }
+    'brainstormer' = @{ Tier = 'standard'; ReadOnly = $true; ExtraTools = @('WebSearch', 'Task', 'Agent') }
     'journal-writer' = @{ Tier = 'standard'; ReadOnly = $false }
     'planner' = @{ Tier = 'complex'; ReadOnly = $true }
-    'debugger' = @{ Tier = 'complex'; ReadOnly = $false; ExtraTools = @('SlashCommand') }
+    'debugger' = @{ Tier = 'complex'; ReadOnly = $false; ExtraTools = @('SlashCommand', 'Task', 'Agent') }
     'code-reviewer' = @{ Tier = 'complex'; ReadOnly = $true }
     'code-simplifier' = @{ Tier = 'complex'; ReadOnly = $false }
     'advisor' = @{ Tier = 'elite'; ReadOnly = $true; NeedsBash = $true; NeedsWebSearch = $true }
@@ -268,9 +268,6 @@ function Get-AgentSources {
         # Capability flags only reach the generated agent through the read-only branch's
         # tools: allowlist. On a write-capable policy they would be dropped without a word.
         $policy = $AgentPolicies[$agent.Name]
-        if ($policy.ContainsKey('ExtraTools') -and $policy.ReadOnly) {
-            throw "Agent '$($agent.Name)' sets ExtraTools but is ReadOnly; read-only agents opt in through the capability flags instead."
-        }
         foreach ($capability in @('NeedsBash', 'NeedsWebSearch')) {
             if ($policy.ContainsKey($capability) -and $policy[$capability] -and -not $policy.ReadOnly) {
                 throw "Agent '$($agent.Name)' sets $capability but is not ReadOnly; capability flags only apply to read-only agents."
@@ -553,12 +550,15 @@ function Write-ClaudeAgent {
     )
 
     if ($Policy.ReadOnly) {
-        # tools: is an allowlist, so read-only agents get the base three plus any
-        # capability the policy opts into. WebSearch adds outbound egress but no
-        # write path: disallowedTools below still blocks every workspace mutation.
-        $tools = @('Read', 'Glob', 'Grep')
+        # tools: is an allowlist, so read-only agents get the base four plus any
+        # capability the policy opts into. Skill is in the base because these
+        # agents' instructions open by activating a skill; it grants no write
+        # path of its own, and disallowedTools below still blocks every
+        # workspace mutation. WebSearch adds outbound egress, nothing more.
+        $tools = @('Read', 'Glob', 'Grep', 'Skill')
         if ($needsBash) { $tools += 'Bash' }
         if ($needsWebSearch) { $tools += 'WebSearch' }
+        if ($Policy.ContainsKey('ExtraTools')) { $tools += $Policy['ExtraTools'] }
         $frontMatter += "tools: $($tools -join ', ')"
         $frontMatter += 'disallowedTools: Write, Edit'
     }
