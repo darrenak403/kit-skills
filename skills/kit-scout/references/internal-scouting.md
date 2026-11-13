@@ -52,7 +52,13 @@ Quickly scout {DIRECTORY} for files related to: {USER_PROMPT}
 
 Instructions:
 - Search for relevant files matching the task
+- Start with grep/glob discovery before reading any file
 - Use `search_files` capability for file discovery
+- Read only the files needed to answer the scouting question
+- Keep scope tight to this prompt; do not broaden into unrelated findings or refactors
+- Prefer exact file paths and symbol names over general descriptions
+- Use Bash for read-only inspection only (`ls`, `find`, `stat`, `wc`, `git log`); never mutate the filesystem, stage, commit, or push
+- Skip secrets and env files unless the caller explicitly approved that access
 - List files with brief descriptions
 - Timeout: 3 minutes max
 - Skip if timeout reached
