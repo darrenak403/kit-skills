@@ -1,0 +1,13 @@
+name: web-testing
+version: "1.0.0"
+description: Web E2E and unit testing with Playwright, Vitest, k6 — bootstrap configs, fixtures, runners.
+
+# Declarative runtime block listing the Node packages this skill's scripts require.
+runtime:
+  node:
+    version: ">=20"
+    packages:
+      - "@playwright/test@1.48.0"
+
+entrypoint:
+  node: scripts/init-playwright.js
