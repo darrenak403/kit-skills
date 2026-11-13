@@ -126,7 +126,10 @@ $ClaudeTiers = @{
     cheap = 'haiku'
     standard = 'sonnet'
     complex = 'opus'
-    elite = 'fable'
+    # The elite tier is the advisory one: its agents earn their keep with a
+    # clean context and an advice-only prompt, not with a larger model. It
+    # shares opus with `complex` deliberately.
+    elite = 'opus'
 }
 
 $CodexTiers = @{

@@ -45,7 +45,7 @@ If coding level guidelines were injected at session start (levels 0-5), follow t
 | `--html`   | Spawn the `ui-ux-designer` subagent to create a self-contained visualized HTML report of the final advice                                                                                                                                                                                                                                |
 | `--md`     | Spawn the `docs-manager` subagent to create a structured markdown report                                                                                                                                                                                                                                                                 |
 | `--github` | Spawn the `git-manager` subagent to reply directly to the source GitHub issue, or create a new GitHub issue when no source issue exists                                                                                                                                                                                                  |
-| `--agent`  | Delegate the whole workflow to the `advisor` subagent (runs on the `fable` model in isolated context). The main session becomes an orchestrator that relays each interview question back to the user via the `ask_user` capability. Claude Code only. See [Running via the advisor subagent](#running-via-the-advisor-subagent---agent). |
+| `--agent`  | Delegate the whole workflow to the `advisor` subagent (runs on the kit's top tier in an isolated context). The main session becomes an orchestrator that relays each interview question back to the user via the `ask_user` capability. Claude Code only. See [Running via the advisor subagent](#running-via-the-advisor-subagent---agent). |
 
 Flags combine freely. With no flags, deliver the advice in the conversation only.
 
@@ -150,7 +150,7 @@ Report every artifact path and URL in the final response.
 
 When `--agent` is passed, do NOT run steps 1-5 yourself. Instead act as the
 orchestrator for the `advisor` subagent, which runs the same workflow on the
-`fable` model in its own context. This mode is Claude Code only; on other runtimes
+kit's top tier in its own context. This mode is Claude Code only; on other runtimes
 fall back to running the skill inline.
 
 <!-- capability-lint-allow: --agent relay is Claude Code-only; naming the native AskUserQuestion tool is intentional here -->
