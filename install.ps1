@@ -94,7 +94,7 @@ if (-not (Test-Path -LiteralPath $DestinationRoot -PathType Container)) {
 # Platform-specific policy deliberately lives here. Agent Markdown files provide
 # only their identity, delegation description, and developer instructions.
 $AgentPolicies = @{
-    'researcher' = @{ Tier = 'cheap'; ReadOnly = $true }
+    'researcher' = @{ Tier = 'cheap'; ReadOnly = $true; NeedsWebSearch = $true }
     'tester' = @{ Tier = 'cheap'; ReadOnly = $true; NeedsBash = $true }
     'project-manager' = @{ Tier = 'cheap'; ReadOnly = $false }
     'Explore' = @{ Tier = 'cheap'; ReadOnly = $true; NeedsBash = $true }
