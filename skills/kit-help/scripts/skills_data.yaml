@@ -16,11 +16,11 @@
   keywords: ["browser", "automation", "playwright", "testing", "e2e", "browserbase", "autonomous", "headless", "electron", "slack", "dogfood", "agentcore", "vercel-sandbox"]
 - name: ":autopilot"
   path: "kit-autopilot/SKILL.md"
-  description: "Run one request end to end in the current repo (scout, plan, implement or fix, test, review, commit), picking the right kit skill for each phase while holding a strict token budget: cache-stable prompt prefix, lazy skill loading, and a measured cache-hit and context gate at every phase boundary. Use when the user says do it all, run the full workflow, autopilot, or work continuously without asking."
+  description: "The single end-to-end pipeline: request or GitHub issue through plan, implement or fix, test, review, commit, and in PR mode to a merged PR; decides inline vs subagents with a cost calculator and enforces a measured token budget."
   category: "dev-tools"
   has_scripts: true
-  has_references: false
-  argument_hint: "[--budget lean|normal] [--no-commit] <request or plan path>"
+  has_references: true
+  argument_hint: "[--pr] [--ship] [--beta] [--budget lean|normal] [--no-commit] <request | plan path | github-issue-url>"
   keywords: ["autopilot", "pipeline", "end-to-end", "workflow", "orchestrate", "token", "cache", "budget", "autonomous"]
 - name: ":backend-development"
   path: "kit-backend-development/SKILL.md"
@@ -406,14 +406,6 @@
   has_scripts: true
   has_references: false
   keywords: ["ui-ux", "styles", "palettes", "fonts"]
-- name: ":vibe"
-  path: "kit-vibe/SKILL.md"
-  description: "Run the full vibe pipeline from request intake to PR readiness, with optional merge and post-merge CI convergence. Orchestrates worktree, plan, cook/fix, code-review, ship, and review-pr. Use for GitHub issues, feature requests, bug fixes, or autonomous ship runs."
-  category: "dev-tools"
-  has_scripts: false
-  has_references: false
-  argument_hint: "[--ship] [--beta] <github-issue-url | feature request>"
-  keywords: ["vibe", "pipeline", "autonomous", "ship", "worktree", "plan", "cook", "fix", "review-pr", "ci"]
 - name: ":watzup"
   path: "kit-watzup/SKILL.md"
   description: "Generate short handoff reports from Git branches, remote refs, worktrees, unfinished plans, and roadmap docs. Surfaces priority-ranked next steps with checkbox progress and rationale. Use when the user asks what's in flight, wants progress/next steps, is in a fresh worktree or detached checkout, or needs end-of-session status."

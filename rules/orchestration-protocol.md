@@ -43,4 +43,4 @@ Handle `BLOCKED` and `NEEDS_CONTEXT` by changing context, scope, or approach. Do
 
 When the current session or a subagent is stuck on a hard problem — whatever model it runs on — repeated failed attempts, a high-stakes design fork, or fuzzy requirements — spawn the `kongming` agent for counsel instead of switching the session model. `kongming` runs autonomously on the kit's top tier, in a context free of the failed attempts so far, and returns full advice in one reply (no interview, no user round-trips). Give it the task, evidence gathered so far, approaches tried, and the specific question. It advises only; the caller stays responsible for the implementation. For interview-driven advisory with user participation, use `advisor` / `/kit:advise` instead.
 
-For multi-session team work, use `/kit:vibe` (the multi-agent pipeline) and its skill-local rules.
+For end-to-end runs, use `/kit:autopilot`: it decides inline vs subagents (and how many) with `scripts/delegation-calc.cjs` and measures the real cost, subagents included, with `scripts/token-audit.cjs`. Its PR mode covers the GitHub issue to merged PR pipeline.

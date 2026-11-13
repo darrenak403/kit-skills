@@ -235,7 +235,7 @@ async function main() {
     if (teamInfo) {
       console.log(`[i] Agent Team detected: "${teamInfo.teamName}" (${teamInfo.memberCount} members)`);
       console.log(`    Team config: ~/.claude/teams/${teamInfo.teamName}/config.json`);
-      console.log(`    Use /kit:vibe for multi-agent pipeline coordination.`);
+      console.log(`    Use /kit:autopilot for the end-to-end pipeline (add --pr for issue to PR).`);
     }
 
     // Info: Show git root when running from subdirectory (Issue #327: now supported)

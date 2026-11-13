@@ -31,7 +31,7 @@ Individual skills carry their own terms, retained in place:
 | --- | --- |
 | ISC | the kit as a whole — see `LICENSE` |
 | Apache-2.0 | `kit-agent-browser`, `kit-web-testing`, and `kit-frontend-design`, `kit-mcp-builder`, `kit-show-off`, `kit-skill-creator` (terms in each skill's `LICENSE.txt`) |
-| MIT | `kit-advise`, `kit-backend-development`, `kit-better-auth`, `kit-bootstrap`, `kit-brainstorm`, `kit-chrome-profile`, `kit-codex`, `kit-databases`, `kit-deploy`, `kit-devops`, `kit-media-processing`, `kit-payment-integration`, `kit-plan`, `kit-research`, `kit-sequential-thinking`, `kit-ship`, `kit-threejs`, `kit-ui-styling`, `kit-vibe`, `kit-web-frameworks` |
+| MIT | `kit-advise`, `kit-backend-development`, `kit-better-auth`, `kit-bootstrap`, `kit-brainstorm`, `kit-chrome-profile`, `kit-codex`, `kit-databases`, `kit-deploy`, `kit-devops`, `kit-media-processing`, `kit-payment-integration`, `kit-plan`, `kit-research`, `kit-sequential-thinking`, `kit-ship`, `kit-threejs`, `kit-ui-styling`, `kit-web-frameworks` |
 
 Components with their own copyright holders:
 

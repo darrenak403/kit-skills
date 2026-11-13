@@ -22,8 +22,7 @@ Skills CLI flow.
 | Review code quality and security | `/kit:code-review` |
 | Review a GitHub pull request | `/kit:review-pr` |
 | Ship: tests, review, version, PR pipeline | `/kit:ship` |
-| Whole request end to end with token budget | `/kit:autopilot` |
-| Multi-agent feature pipeline / team orchestration | `/kit:vibe` |
+| Whole request or GitHub issue end to end, multi-agent orchestration, token budget | `/kit:autopilot` |
 | Bootstrap a new project from scratch | `/kit:bootstrap` |
 | Initialize/refresh AI project docs | `/kit:docs` |
 

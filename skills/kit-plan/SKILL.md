@@ -248,8 +248,8 @@ red-team gates finish and before implementation handoff.
 
 **Required label:** `ready to review`.
 
-kit-vibe lifecycle labels (`ready to cook`, `in progress`, `ready to ship *`) are
-owned by kit-vibe; `ready to review` marks a
+kit-autopilot PR-mode lifecycle labels (`ready to cook`, `in progress`, `ready to ship *`) are
+owned by kit-autopilot PR mode; `ready to review` marks a
 plan-awaiting-human-review stage before `ready to cook`.
 
 **Issue creation rules:**

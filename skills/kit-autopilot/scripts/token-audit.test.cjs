@@ -27,3 +27,17 @@ test('since filter and gates', () => {
   assert.ok(gates(r, 0.8, 0.7).some(f => f.startsWith('peak context')));
   assert.deepEqual(gates({ ...r, turns: 6, cacheHitRatio: 0.95, peakContextRatio: 0.2 }, 0.8, 0.7), []);
 });
+
+test('subagent transcripts are read as sidechains next to the main file', () => {
+  const fs = require('node:fs'); const os = require('node:os'); const path = require('node:path');
+  const { auditSubagents } = require('./token-audit.cjs');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'audit-'));
+  const main = path.join(dir, 's1.jsonl');
+  fs.writeFileSync(main, row('m', { input_tokens: 10 }));
+  fs.mkdirSync(path.join(dir, 's1', 'subagents'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 's1', 'subagents', 'agent-abc.jsonl'), row('x', { input_tokens: 25000, output_tokens: 100 }, { isSidechain: true }));
+  const subs = auditSubagents(main, {});
+  assert.equal(subs.length, 1);
+  assert.equal(subs[0].id, 'abc');
+  assert.equal(subs[0].costUnits, 25500);
+});

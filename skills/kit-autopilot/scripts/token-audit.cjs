@@ -34,12 +34,12 @@ function newestTranscript(dir) {
 const n = v => (Number.isFinite(v) && v > 0 ? v : 0);
 
 /** Aggregate usage of main-thread assistant turns; dedupes streamed chunks by message id. */
-function audit(text, { since = null, window = 200000 } = {}) {
+function audit(text, { since = null, window = 200000, sidechain = false } = {}) {
   const seen = new Map();
   for (const line of text.split('\n')) {
     if (!line.trim()) continue;
     let row; try { row = JSON.parse(line); } catch { continue; }
-    if (row.type !== 'assistant' || row.isSidechain || !row.message?.usage) continue;
+    if (row.type !== 'assistant' || Boolean(row.isSidechain) !== sidechain || !row.message?.usage) continue;
     if (since && row.timestamp && row.timestamp < since) continue;
     seen.set(row.message.id ?? row.uuid, row.message.usage);
   }
@@ -54,7 +54,18 @@ function audit(text, { since = null, window = 200000 } = {}) {
   return { ...t, window: win,
     cacheHitRatio: prompt ? +(t.cacheRead / prompt).toFixed(3) : 0,
     peakContextRatio: +(t.peakContext / win).toFixed(3),
-    avgNewTokensPerTurn: t.turns ? Math.round((t.input + t.cacheWrite) / t.turns) : 0 };
+    avgNewTokensPerTurn: t.turns ? Math.round((t.input + t.cacheWrite) / t.turns) : 0,
+    // Cost in units of one fresh input token: cache write 1.25, cache read 0.1, output 5.
+    costUnits: Math.round(t.input + t.cacheWrite * 1.25 + t.cacheRead * 0.1 + t.output * 5) };
+}
+
+/** Subagent transcripts live next to the main one: <session>/subagents/agent-*.jsonl. */
+function auditSubagents(mainFile, opts) {
+  const dir = path.join(mainFile.replace(/\.jsonl$/, ''), 'subagents');
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter(f => f.endsWith('.jsonl'))
+    .map(f => ({ id: f.replace(/^agent-|\.jsonl$/g, ''), ...audit(fs.readFileSync(path.join(dir, f), 'utf8'), { ...opts, sidechain: true }) }))
+    .filter(r => r.turns > 0);
 }
 
 function gates(r, minHit, maxContext) {
@@ -67,15 +78,23 @@ function gates(r, minHit, maxContext) {
 if (require.main === module) {
   const file = process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : newestTranscript(projectDir());
   if (!file) { console.error('no transcript found'); process.exit(1); }
-  const r = audit(fs.readFileSync(file, 'utf8'), { since: arg('--since', null), window: +arg('--window', 200000) });
+  const opts = { since: arg('--since', null), window: +arg('--window', 200000) };
+  const r = audit(fs.readFileSync(file, 'utf8'), opts);
+  const subs = auditSubagents(file, opts);
   const fails = gates(r, +arg('--min-hit', 0.8), +arg('--max-context', 0.7));
-  if (process.argv.includes('--json')) console.log(JSON.stringify({ ...r, fails }));
+  // A subagent that cost more than it saved shows up as a high share of the run's cost units.
+  const subCost = subs.reduce((n, x) => n + x.costUnits, 0);
+  const total = r.costUnits + subCost;
+  if (process.argv.includes('--json')) console.log(JSON.stringify({ main: r, subagents: subs, totalCostUnits: total, fails }));
   else {
     const k = v => `${(v / 1000).toFixed(1)}k`;
-    console.log(`turns ${r.turns} | new ${k(r.input + r.cacheWrite)} | cached ${k(r.cacheRead)} | out ${k(r.output)} | hit ${(r.cacheHitRatio * 100).toFixed(1)}% | peak ctx ${k(r.peakContext)}/${k(r.window)} (${Math.round(r.peakContextRatio * 100)}%) | avg new/turn ${k(r.avgNewTokensPerTurn)}`);
+    const line = (name, x) => `${name} turns ${x.turns} | new ${k(x.input + x.cacheWrite)} | cached ${k(x.cacheRead)} | out ${k(x.output)} | hit ${(x.cacheHitRatio * 100).toFixed(1)}% | peak ctx ${k(x.peakContext)} | cost ${k(x.costUnits)}`;
+    console.log(line('main', r) + ` (${Math.round(r.peakContextRatio * 100)}% of ${k(r.window)}) | avg new/turn ${k(r.avgNewTokensPerTurn)}`);
+    for (const x of subs) console.log(line(`  sub ${x.id.slice(0, 8)}`, x));
+    console.log(`total cost ${k(total)} units | subagents ${subs.length} = ${total ? Math.round(subCost / total * 100) : 0}%`);
     for (const f of fails) console.log(`GATE FAIL: ${f}`);
   }
   process.exit(fails.length ? 2 : 0);
 }
 
-module.exports = { audit, gates, projectDir };
+module.exports = { audit, auditSubagents, gates, projectDir };

@@ -1,15 +1,15 @@
 ---
 name: kit:autopilot
-description: "Run one request end to end in the current repo (scout, plan, implement or fix, test, review, commit), picking the right kit skill for each phase while holding a strict token budget: cache-stable prompt prefix, lazy skill loading, and a measured cache-hit and context gate at every phase boundary. Use when the user says do it all, run the full workflow, autopilot, or work continuously without asking."
+description: "The single end-to-end pipeline: takes a request or GitHub issue through scout, plan, implement or fix, test, review and commit, and in PR mode on to a reviewed PR, merge and green CI. Picks the owning kit skill per phase, decides with a cost calculator whether work runs inline or in subagents and how many, and enforces a measured token budget (cache hit, peak context, subagent share) at every phase boundary. Use for do it all, full workflow, autopilot, work continuously, ship this issue."
 user-invocable: true
-when_to_use: "Invoke when the user wants a request carried from understanding to a committed, verified change in the local repo with no hand-holding, and cares about token cost. Use /kit:vibe instead when the source is a GitHub issue and the goal is a reviewed PR or merge."
+when_to_use: "Invoke when the user wants a request or GitHub issue carried from understanding to a committed, verified change (or a reviewed PR with --pr, merged with --ship) without hand-holding, at the lowest token cost."
 category: dev-tools
-keywords: [autopilot, pipeline, end-to-end, workflow, orchestrate, token, cache, budget, autonomous]
-argument-hint: "[--budget lean|normal] [--no-commit] <request or plan path>"
+keywords: [autopilot, pipeline, end-to-end, workflow, orchestrate, subagent, delegation, token, cache, budget, autonomous, vibe, pr, ship]
+argument-hint: "[--pr] [--ship] [--beta] [--budget lean|normal] [--no-commit] <request | plan path | github-issue-url>"
 license: MIT
 metadata:
   author: kit
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Autopilot
@@ -30,6 +30,8 @@ Classify once, write the result in one line, and do not re-classify later:
 | one or two files, obvious change | **quick** | `/kit:cook --fast` → `/kit:test` |
 | visual or UI quality is the point | **ui** | `/kit:frontend-design` (it plans itself) → browser check |
 | existing `plans/**/plan.md` given | **execute** | `/kit:cook <plan>` → `/kit:test` |
+
+| GitHub issue URL/number, or `--pr` / `--ship` / `--beta` | **pr** | read `references/pr-mode.md` and follow it: worktree, plan gates, implement, PR, review, optional merge and CI |
 
 Then always: `/kit:code-review` (self-review of the diff) → `/kit:git` commit,
 unless `--no-commit`. Add a domain skill only when the phase hits its domain
@@ -61,6 +63,38 @@ below protects that prefix or keeps new tokens small.
 7. **Compact at phase boundaries, not mid-edit**, when the gate below says the
    context is heavy.
 
+## Delegation gate (inline or subagents, and how many)
+
+Splitting work never lowers the total token count: every subagent pays a
+cold start (~25k of system prompt, tools, rules and brief) and re-reads what
+the main thread already knows. What it saves is the **main context**: every
+token read inline is re-sent as cache on every later main turn. So delegate
+only when the read is large, the result is small, and the main thread still
+has many turns ahead.
+
+Before any read-heavy step (wide search, many files, long logs), estimate and run:
+
+```bash
+node "$SKILL_DIR/scripts/delegation-calc.cjs" --read <tokens> --parts <independent pieces> --turns <main turns left>
+```
+
+| Input | How to estimate |
+| --- | --- |
+| `--read` | files × ~2k tokens (or bytes / 4); search or log output size |
+| `--parts` | pieces that touch different files and need no result from each other |
+| `--turns` | phases left × ~10 turns |
+| flags | `--needs-context` if the piece depends on this conversation, `--writes-shared` if pieces edit the same files, `--prefer-speed` to parallelize when it costs ≤ 35% more |
+
+It prints inline vs N subagents with both costs. Hard rules it encodes:
+- Inline when reading under ~20k, when the piece needs this conversation, when
+  parallel pieces would edit the same files, or when the main thread ends soon.
+- One subagent by default; more only when a slice would exceed ~120k (one
+  agent's comfortable window) or for speed at bounded cost. Never more than 4.
+- Read-only subagents run on a cheaper model; code-writing ones on the same model.
+- Briefs are self-contained (exact paths, acceptance, no conversation history),
+  share the same opening text so their prefixes cache together, and demand a
+  reply of at most ~1.5k tokens: `Status / Summary / Files / Open questions`.
+
 ## Budget gate (run at every phase boundary)
 
 Record the start timestamp of the run, then after each phase:
@@ -76,9 +110,12 @@ node "$SKILL_DIR/scripts/token-audit.cjs" --since <run-start-ISO> --min-hit 0.8 
 | cache hit ratio | ≥ 0.80 | ≥ 0.90 | Stop re-reading and re-loading; check rules 1, 2 and 4 |
 | peak context | ≤ 70% of window | ≤ 50% | Delegate the next wide read; compact before the next phase |
 | avg new tokens / turn | report only | ≤ 4k | Narrow reads, trim command output |
+| subagent share of cost | report only | ≤ 40% | Fewer or smaller subagents; re-run the calculator with real numbers |
 
 A failed gate is fixed before the next phase starts, never ignored. The
-script reads only usage numbers from the transcript, never message text.
+script also sums each subagent transcript of the session, so the cost of
+delegation is measured, not assumed. It reads only usage numbers, never
+message text.
 
 ## Phases
 
@@ -99,8 +136,8 @@ script reads only usage numbers from the transcript, never message text.
 
 End with one table and nothing else verbose:
 
-| Phase | Skill | Result | New tokens | Cache hit |
-| --- | --- | --- | --- | --- |
+| Phase | Skill | Inline / subagents | Result | New tokens | Cache hit |
+| --- | --- | --- | --- | --- | --- |
 
 Fill the token columns from the gate runs. After the table, list what was not
 verified and any open question.

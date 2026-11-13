@@ -1,19 +1,8 @@
----
-name: kit:vibe
-description: "Run the full vibe pipeline from request intake to PR readiness, with optional merge and post-merge CI convergence. Orchestrates worktree, plan, cook/fix, code-review, ship, and review-pr. Use for GitHub issues, feature requests, bug fixes, or autonomous ship runs."
-user-invocable: true
-when_to_use: "Invoke when a user wants one command to take a GitHub issue or feature request from planning through implementation, PR review, shipping, and optional merge."
-category: dev-tools
-keywords:
-  [vibe, pipeline, autonomous, ship, worktree, plan, cook, fix, review-pr, ci]
-argument-hint: "[--ship] [--beta] <github-issue-url | feature request>"
-license: MIT
-metadata:
-  author: kit
-  version: "1.0.0"
----
+# PR mode (GitHub issue to reviewed PR, optional merge)
 
-# Vibe Pipeline
+Loaded by `/kit:autopilot` only when the input is a GitHub issue or `--pr`, `--ship` or `--beta` is set.
+Formerly the `kit:vibe` skill; the token and delegation rules of `SKILL.md` still apply to every step.
+
 
 Run a full autonomous product-development pipeline from request intake to PR
 readiness, with optional merge and post-merge CI convergence.
@@ -28,9 +17,9 @@ security policies.
 Accepted forms:
 
 ```bash
-/kit:vibe <github-issue-url>
-/kit:vibe --ship --beta <github-issue-url>
-/kit:vibe --ship <feature request>
+/kit:autopilot --pr <github-issue-url>
+/kit:autopilot --ship --beta <github-issue-url>
+/kit:autopilot --ship <feature request>
 ```
 
 Flags:
