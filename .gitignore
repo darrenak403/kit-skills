@@ -1,0 +1,29 @@
+# Runtime install copy (session-local, seeded from this kit via install.ps1)
+.claude/
+.codex/
+
+# Local-only archive of trimmed kit components (kept for future revival, not shipped)
+archive/
+
+# Dogfood sandbox (tools/dev-install.ps1)
+temp/
+
+# Generated artifacts (.kit.json `artifacts.*` directories)
+plans/
+docs/
+
+# Build/dependency output
+dist/**
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.coverage
+coverage-*.json
+
+# OS/editor cruft
+.DS_Store
+Thumbs.db
+*.log
+*.logs
