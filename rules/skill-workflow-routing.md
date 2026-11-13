@@ -13,6 +13,7 @@ When orchestrating multi-step tasks, consider these workflow sequences. Skills a
 | "implement feature X", "build X", "add X" | `/kit:plan` then `/kit:cook` |
 | "execute this plan" | `/kit:cook <plan-path>` |
 | "quick implementation" | `/kit:cook --fast` |
+| "do it all", "run the full workflow", "work continuously" | `/kit:autopilot` |
 
 ## Bugfix Workflow
 

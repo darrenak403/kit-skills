@@ -139,6 +139,7 @@ User wants to...
 ├── Review code quality and security              → /kit:code-review
 ├── Review a GitHub pull request                  → /kit:review-pr
 ├── Ship pipeline (tests, review, version, PR)    → /kit:ship
+├── Whole request end to end, token-budgeted      → /kit:autopilot
 ├── Multi-agent feature pipeline                  → /kit:vibe
 ├── Bootstrap a new project                       → /kit:bootstrap
 ├── Research options with sources                 → /kit:research
