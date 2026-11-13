@@ -92,7 +92,7 @@ Reports        → report-format.md
 - **Browser**: `kit:agent-browser` for live browser interaction without real user cookies; `kit:chrome-profile` for the user's actual Chrome login state, opened with `chrome-profile open --json` and bound by the returned selector; `kit:web-testing` or project-native Playwright/Vitest/k6 for repeatable UI tests
 - **Analysis**: native `Read` tool for screenshot analysis
 - **Debugging**: `kit:fix` (Deep Diagnosis) when tests reveal bugs requiring investigation
-- **Thinking**: `kit:sequential-thinking` skill for complex test failure analysis
+- **Thinking**: `sequential-thinking` skill for complex test failure analysis
 
 ## Quality Standards
 

@@ -34,7 +34,7 @@ Read, don't assume. Work from captured evidence only (see `workflow-deep.md` for
 
 ### Phase 2: Hypothesize — Why might this happen?
 
-Activate `kit:sequential-thinking` skill. Form hypotheses through structured reasoning.
+Activate `sequential-thinking` skill. Form hypotheses through structured reasoning.
 
 **Structured hypothesis formation:**
 ```

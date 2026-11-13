@@ -111,7 +111,7 @@ For each core component:
 
 For complex features with 3+ layers or stateful workflows:
 
-- activate `/kit:sequential-thinking` to trace multi-step flows
+- activate `sequential-thinking` to trace multi-step flows
 - draw state transitions if the behavior depends on workflow state
 - mark transaction boundaries and partial-failure paths
 

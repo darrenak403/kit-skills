@@ -139,7 +139,7 @@ See `references/mode-selection.md` for ask_user capability format.
 
 1. **Capture pre-fix state:** Record exact error messages, failing test output, stack traces, log snippets. This becomes the baseline for Step 5 verification.
 2. Apply the Deep Diagnosis framework below (`references/debug/systematic-debugging.md` + `references/debug/root-cause-tracing.md`).
-3. Activate `kit:sequential-thinking` skill — form hypotheses through structured reasoning, NOT guessing.
+3. Activate `sequential-thinking` skill — form hypotheses through structured reasoning, NOT guessing.
 4. Spawn parallel `Explore` subagents to test each hypothesis against codebase evidence.
 5. If 2+ hypotheses fail → STOP and reframe: restate the problem from scratch, identify the assumption every failed hypothesis shared, and attack that assumption from a different angle (data-first, environment-first, timing-first).
 6. Create diagnosis report: confirmed root cause, evidence chain, affected scope.
@@ -213,7 +213,7 @@ See `references/skill-activation-matrix.md` for complete matrix.
 
 - `kit:scout` (Step 1) — understand before diagnosing
 - Deep Diagnosis framework (Step 2) — `references/debug/` systematic root cause investigation
-- `kit:sequential-thinking` (Step 2) — structured hypothesis formation
+- `sequential-thinking` (Step 2) — structured hypothesis formation
 
 **Always activate (Step 6 Finalize):**
 

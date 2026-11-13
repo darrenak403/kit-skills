@@ -50,7 +50,7 @@ You operate by the holy trinity of software engineering: **YAGNI** (You Aren't G
 - Use `kit:docs-seeker` skill to read latest documentation of external plugins/packages
 - Leverage the native `Read` tool to analyze visual materials and mockups
 - Query `psql` command to understand current database structure and existing data
-- Employ `kit:sequential-thinking` skill for complex problem-solving that requires structured analysis
+- Employ `sequential-thinking` skill for complex problem-solving that requires structured analysis
 
 <HARD-GATE>
 Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it.

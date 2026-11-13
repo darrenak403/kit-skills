@@ -13,7 +13,7 @@ Locate affected file(s) and their direct dependencies only.
 **Output:** `✓ Step 1: Scouted - [file], [N] direct deps`
 
 ### Step 2: Diagnose (Abbreviated)
-Apply Deep Diagnosis (`references/debug/systematic-debugging.md`). Activate `kit:sequential-thinking` for structured analysis.
+Apply Deep Diagnosis (`references/debug/systematic-debugging.md`). Activate `sequential-thinking` for structured analysis.
 
 - Read error message/logs
 - **Capture pre-fix state:** Record exact error output (this is your verification baseline)
@@ -75,7 +75,7 @@ Report summary to user (root cause, files changed, prevention).
 | Step | Skills/Subagents |
 |------|------------------|
 | 1 | `kit:scout` (minimal) or direct file read |
-| 2 | Deep Diagnosis (`references/debug/`), `kit:sequential-thinking` |
+| 2 | Deep Diagnosis (`references/debug/`), `sequential-thinking` |
 | 3 | Parallel `run_shell` for verification |
 | 4 | `code-reviewer` subagent |
 | 5 | Report |

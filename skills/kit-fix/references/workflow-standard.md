@@ -41,7 +41,7 @@ Mark the diagnose phase `in_progress` via `manage_plan` when tracking is availab
 **Mandatory skill chain:**
 1. **Capture pre-fix state:** Record exact error messages, failing test output, stack traces.
 2. Apply Deep Diagnosis (`references/debug/systematic-debugging.md`). Use `debugger` subagent if needed.
-3. Activate `kit:sequential-thinking` — form hypotheses through structured reasoning.
+3. Activate `sequential-thinking` — form hypotheses through structured reasoning.
 4. Use delegated `Explore` subagents to test hypotheses only when delegation is explicitly requested/permitted.
 5. If 2+ hypotheses fail → reframe: restate the problem, attack the assumption the failed hypotheses shared.
 6. Trace backward to root cause (not just symptom location).
@@ -57,7 +57,7 @@ Mark the implementation phase `in_progress` once scout + diagnose are complete.
 Fix the ROOT CAUSE per diagnosis findings. Not symptoms.
 
 - If stuck, reframe: question the assumption the failed attempts shared
-- Use `kit:sequential-thinking` for complex logic
+- Use `sequential-thinking` for complex logic
 - Minimal changes. Follow existing patterns.
 
 Mark the implementation phase `completed` via `manage_plan` when tracking is available.
@@ -108,8 +108,8 @@ Mark the finalize phase `completed` via `manage_plan` when tracking is available
 | Step | Skills/Subagents |
 |------|------------------|
 | 1 | `kit:scout` OR parallel `Explore` subagents when delegation is permitted |
-| 2 | Deep Diagnosis (`references/debug/`), `kit:sequential-thinking`, optional delegated debugger/Explore when permitted, (reframe if 2+ hypotheses fail) |
-| 3 | Reframing protocol (if stuck), `kit:sequential-thinking` (complex logic) |
+| 2 | Deep Diagnosis (`references/debug/`), `sequential-thinking`, optional delegated debugger/Explore when permitted, (reframe if 2+ hypotheses fail) |
+| 3 | Reframing protocol (if stuck), `sequential-thinking` (complex logic) |
 | 4 | `run_shell` verification; optional delegated tester/workers when permitted |
 | 5 | `code-reviewer` via `delegate_agent` when permitted, otherwise local review |
 | 6 | `kit:project-management`; docs/git delegation only when permitted |

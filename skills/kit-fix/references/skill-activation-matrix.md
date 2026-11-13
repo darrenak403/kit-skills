@@ -8,7 +8,7 @@ When to activate each skill and tool during fixing workflows.
 |------------|------|--------|
 | `kit:scout` OR parallel `Explore` when permitted | Step 1 | Understand codebase context before diagnosing |
 | Deep Diagnosis (`references/debug/`) | Step 2 | Systematic root cause investigation |
-| `kit:sequential-thinking` | Step 2 | Structured hypothesis formation — NO guessing |
+| `sequential-thinking` | Step 2 | Structured hypothesis formation — NO guessing |
 | `the engineer project-management skill` | Step 6 | MANDATORY for sync-back and progress tracking, every fix |
 
 ## Task Orchestration (Moderate+ Only)
@@ -25,7 +25,7 @@ Skip plan orchestration for Quick workflow (< 3 steps). See `references/task-orc
 | Skill | Auto-Trigger Condition |
 |-------|------------------------|
 | Reframing protocol (restate problem, attack shared assumption) | 2+ hypotheses REFUTED in Step 2 diagnosis |
-| `kit:sequential-thinking` | Always in Step 2 (mandatory for hypothesis formation) |
+| `sequential-thinking` | Always in Step 2 (mandatory for hypothesis formation) |
 
 ## Conditional Activation
 
@@ -66,7 +66,7 @@ See `references/parallel-exploration.md` for detailed patterns.
 
 | Workflow | Skills Activated |
 |----------|------------------|
-| Quick | `kit:scout` (minimal), Deep Diagnosis (`references/debug/`), `kit:sequential-thinking`, `kit:code-review`, `the engineer project-management skill`, `run_shell` verification |
+| Quick | `kit:scout` (minimal), Deep Diagnosis (`references/debug/`), `sequential-thinking`, `kit:code-review`, `the engineer project-management skill`, `run_shell` verification |
 | Standard | Above + `manage_plan`, reframing protocol (auto), `kit:project-management`, optional delegated tester/Explore when permitted |
 | Deep | All above + `kit:brainstorm`, `kit:context-engineering`, `researcher`, `planner` |
 | Parallel | Per-issue plan trees + `kit:project-management` + delegated agents + coordination via `manage_plan` |
@@ -77,7 +77,7 @@ See `references/parallel-exploration.md` for detailed patterns.
 |------|----------------|
 | Step 0: Mode | `ask_user capability` (unless auto/quick detected) |
 | Step 1: Scout | `kit:scout` OR 2-3 parallel `Explore` when delegation is permitted → map files, deps, tests |
-| Step 2: Diagnose | Capture pre-fix state → Deep Diagnosis (`references/debug/`) → `kit:sequential-thinking` → optional delegated Explore hypotheses → (reframe if 2+ fail) |
+| Step 2: Diagnose | Capture pre-fix state → Deep Diagnosis (`references/debug/`) → `sequential-thinking` → optional delegated Explore hypotheses → (reframe if 2+ fail) |
 | Step 3: Assess | Classify complexity → create plan tracking with `manage_plan` (moderate+) |
 | Step 4: Fix | Implement per workflow → follow root cause |
 | Step 5: Verify+Prevent | Iron-law verify → regression test → defense-in-depth → `run_shell` verify |
@@ -89,7 +89,7 @@ See `references/parallel-exploration.md` for detailed patterns.
 |-----------------|-------------------|
 | "AI", "LLM", "agent", "context" | `kit:context-engineering` |
 | "stuck", "tried everything" | Reframing protocol; `kit:brainstorm` for approach trade-offs |
-| "complex", "multi-step" | `kit:sequential-thinking` |
+| "complex", "multi-step" | `sequential-thinking` |
 | "which approach", "options" | `kit:brainstorm` |
 | "latest docs", "best practice" | `researcher` subagent |
 | Screenshot attached | Native `Read` tool |

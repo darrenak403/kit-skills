@@ -28,7 +28,7 @@ User wants to...
 
 ```
 User wants to...
-├── Build REST/GraphQL API (NestJS, FastAPI, Django) → /kit:backend-development
+├── Build REST/GraphQL API (NestJS, FastAPI, Django) → `backend-mindset`
 ├── Add authentication (OAuth, JWT, passkeys)        → /kit:better-auth
 └── Integrate payments (Stripe, Polar, SePay)        → /kit:payment-integration
 ```
@@ -98,7 +98,7 @@ User wants to...
 User wants to...
 ├── Update project docs (codebase-summary, PDR)   → /kit:docs
 ├── Search library/framework docs (context7)      → /kit:docs-seeker
-├── Discover skills by capability / "is there a skill" → /kit:find-skills
+├── Discover skills by capability / "is there a skill" → `find-skills`
 ├── Kit catalog and usage help                    → /kit:help
 ├── Inline doc diagrams (Mermaid v11)             → /kit:mermaidjs-v11
 ├── Publish-grade SVG/PNG diagrams (architecture) → /kit:tech-graph
@@ -111,7 +111,7 @@ User wants to...
 
 ```
 User wants to...
-└── Create / edit / extract from .docx / .pdf / .pptx / .xlsx → /kit:document-skills
+└── Create / edit / extract from .docx / .pdf / .pptx / .xlsx → `docx` / `pdf` / `pptx` / `xlsx`
 ```
 
 ## Content / Visuals
@@ -144,13 +144,13 @@ User wants to...
 ├── Research options with sources                 → /kit:research
 ├── Brainstorm approaches with trade-offs         → /kit:brainstorm
 ├── Strategic advice via structured interview     → /kit:advise
-├── Structured step-by-step reasoning             → /kit:sequential-thinking
+├── Structured step-by-step reasoning             → `sequential-thinking`
 ├── Plan-progress sync / task reconciliation      → /kit:project-management
 ├── Organize outputs into project structure       → /kit:project-organization
 ├── Git commits, branches, hygiene                → /kit:git
 ├── Isolated worktree for a feature/fix           → /kit:worktree
 ├── Adjust AI coding autonomy level               → /kit:coding-level
-└── Author or improve a skill                     → /kit:skill-creator
+└── Author or improve a skill                     → `skill-creator`
 ```
 
 ## Usage Notes
@@ -158,4 +158,13 @@ User wants to...
 - Pick ONE skill per distinct user intent
 - If a task spans two domains (e.g. "build + deploy"), suggest the primary skill and mention the secondary
 - Domain skills combine with core workflow: `/kit:plan` → domain skill → `/kit:cook`
-- Skills not listed here are utility skills activated on demand (e.g. `/kit:preview`, `/kit:sequential-thinking`)
+- Skills not listed here are utility skills activated on demand (e.g. `/kit:preview`, `/kit:scout`)
+
+## Skills outside the kit
+
+A few entries above route to skills that ship with Claude rather than to a kit
+skill: `find-skills`, `skill-creator`, `sequential-thinking`, `backend-mindset`,
+and the Office skills `docx` / `pdf` / `pptx` / `xlsx`. The kit once carried its
+own version of each; they were removed because two skills offering the same
+capability make the choice between them ambiguous and degrade both. Invoke these
+by their bare name, with no `kit:` prefix.
