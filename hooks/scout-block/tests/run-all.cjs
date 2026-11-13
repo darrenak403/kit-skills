@@ -29,6 +29,9 @@ const RED = '\x1b[31m';
 const DIM = '\x1b[2m';
 const RESET = '\x1b[0m';
 
+// Per-file ceiling. One test file spawns scout-block.cjs, so a hang is real.
+const TIMEOUT_MS = 30000;
+
 const failures = [];
 
 for (const file of files) {
@@ -36,8 +39,9 @@ for (const file of files) {
   const res = spawnSync(process.execPath, [path.join(dir, file)], {
     stdio: 'inherit',
     // One of these files spawns scout-block.cjs itself, so a hang is a real
-    // risk. Bound it: an exceeded timeout arrives as a SIGTERM signal below.
-    timeout: 30000,
+    // risk. Bound it. Note a timeout sets BOTH signal SIGTERM and an
+    // ETIMEDOUT error, so it is reported by the error branch below.
+    timeout: TIMEOUT_MS,
   });
   // A signal-terminated child reports status null, and a spawn that never
   // started reports null for both status and signal; treat each as a failure.
@@ -49,9 +53,11 @@ for (const file of files) {
 console.log('='.repeat(48));
 console.log(`${files.length - failures.length}/${files.length} files passed`);
 for (const f of failures) {
-  const how = f.error
-    ? `could not run: ${f.error.message}`
-    : f.signal
+  const how = f.error && f.error.code === 'ETIMEDOUT'
+    ? `timed out after ${TIMEOUT_MS / 1000}s`
+    : f.error
+      ? `could not run: ${f.error.message}`
+      : f.signal
       ? `signal ${f.signal}`
       : `exit ${f.status}`;
   console.log(`  ${RED}FAIL${RESET} ${f.file} (${how})`);
