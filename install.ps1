@@ -97,7 +97,6 @@ $AgentPolicies = @{
     'researcher' = @{ Tier = 'cheap'; ReadOnly = $true; NeedsWebSearch = $true }
     'tester' = @{ Tier = 'cheap'; ReadOnly = $true; NeedsBash = $true }
     'project-manager' = @{ Tier = 'cheap'; ReadOnly = $false; ExtraTools = @('TaskCreate') }
-    'Explore' = @{ Tier = 'cheap'; ReadOnly = $true; NeedsBash = $true }
     'fullstack-developer' = @{ Tier = 'standard'; ReadOnly = $false }
     'docs-manager' = @{ Tier = 'standard'; ReadOnly = $false }
     'ui-ux-designer' = @{ Tier = 'standard'; ReadOnly = $false; ExtraTools = @('WebSearch') }
