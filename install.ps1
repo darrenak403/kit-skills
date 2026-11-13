@@ -96,21 +96,32 @@ if (-not (Test-Path -LiteralPath $DestinationRoot -PathType Container)) {
 $AgentPolicies = @{
     'researcher' = @{ Tier = 'cheap'; ReadOnly = $true; NeedsWebSearch = $true }
     'tester' = @{ Tier = 'cheap'; ReadOnly = $true; NeedsBash = $true }
-    'project-manager' = @{ Tier = 'cheap'; ReadOnly = $false }
+    'project-manager' = @{ Tier = 'cheap'; ReadOnly = $false; ExtraTools = @('TaskCreate') }
     'Explore' = @{ Tier = 'cheap'; ReadOnly = $true; NeedsBash = $true }
     'fullstack-developer' = @{ Tier = 'standard'; ReadOnly = $false }
     'docs-manager' = @{ Tier = 'standard'; ReadOnly = $false }
-    'ui-ux-designer' = @{ Tier = 'standard'; ReadOnly = $false }
+    'ui-ux-designer' = @{ Tier = 'standard'; ReadOnly = $false; ExtraTools = @('WebSearch') }
     'git-manager' = @{ Tier = 'standard'; ReadOnly = $false }
     'brainstormer' = @{ Tier = 'standard'; ReadOnly = $true }
     'journal-writer' = @{ Tier = 'standard'; ReadOnly = $false }
     'planner' = @{ Tier = 'complex'; ReadOnly = $true }
-    'debugger' = @{ Tier = 'complex'; ReadOnly = $false }
+    'debugger' = @{ Tier = 'complex'; ReadOnly = $false; ExtraTools = @('SlashCommand') }
     'code-reviewer' = @{ Tier = 'complex'; ReadOnly = $true }
     'code-simplifier' = @{ Tier = 'complex'; ReadOnly = $false }
     'advisor' = @{ Tier = 'elite'; ReadOnly = $true; NeedsBash = $true; NeedsWebSearch = $true }
     'kongming' = @{ Tier = 'elite'; ReadOnly = $true; NeedsBash = $true; NeedsWebSearch = $true }
 }
+
+# Write-capable agents declare an allowlist too. Omitting tools: inherits every
+# tool in the host, which hands a haiku agent the Agent, WebFetch and
+# NotebookEdit surface it never uses. These eleven are what every write-capable
+# agent's own instructions exercise: the file and shell tools, Skill for the
+# `Activate the <x> skill` step, and the task/message tools its Team Mode
+# section uses. Per-agent additions go in ExtraTools.
+$WriteAgentBaseTools = @(
+    'Read', 'Glob', 'Grep', 'Write', 'Edit', 'Bash',
+    'Skill', 'TaskList', 'TaskGet', 'TaskUpdate', 'SendMessage'
+)
 
 $ClaudeTiers = @{
     cheap = 'haiku'
@@ -255,6 +266,9 @@ function Get-AgentSources {
         # Capability flags only reach the generated agent through the read-only branch's
         # tools: allowlist. On a write-capable policy they would be dropped without a word.
         $policy = $AgentPolicies[$agent.Name]
+        if ($policy.ContainsKey('ExtraTools') -and $policy.ReadOnly) {
+            throw "Agent '$($agent.Name)' sets ExtraTools but is ReadOnly; read-only agents opt in through the capability flags instead."
+        }
         foreach ($capability in @('NeedsBash', 'NeedsWebSearch')) {
             if ($policy.ContainsKey($capability) -and $policy[$capability] -and -not $policy.ReadOnly) {
                 throw "Agent '$($agent.Name)' sets $capability but is not ReadOnly; capability flags only apply to read-only agents."
@@ -545,6 +559,12 @@ function Write-ClaudeAgent {
         if ($needsWebSearch) { $tools += 'WebSearch' }
         $frontMatter += "tools: $($tools -join ', ')"
         $frontMatter += 'disallowedTools: Write, Edit'
+    }
+    else {
+        # No disallowedTools here: these agents exist to change the workspace.
+        $tools = $WriteAgentBaseTools
+        if ($Policy.ContainsKey('ExtraTools')) { $tools += $Policy['ExtraTools'] }
+        $frontMatter += "tools: $($tools -join ', ')"
     }
     $frontMatter += '---'
 
