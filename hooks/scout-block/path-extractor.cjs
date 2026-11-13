@@ -69,6 +69,26 @@ function extractFromToolInput(toolInput) {
  * @param {string} command - The command string
  * @returns {string[]} Array of extracted paths
  */
+/**
+ * Remove heredoc bodies from a command string.
+ *
+ * A heredoc body is data the command writes, not paths the command touches.
+ * Both extraction passes below run over the whole command string, so without
+ * this the text being written is scanned as if it were arguments — writing a
+ * document that merely mentions a blocked directory name would be refused.
+ *
+ * @param {string} command - The raw command string
+ * @returns {string} The command with every heredoc body removed
+ */
+function stripHeredocBodies(command) {
+  // <<EOF | <<-EOF | <<'EOF' | <<"EOF", body ends at a line holding only the
+  // delimiter (leading whitespace allowed, as <<- strips tabs).
+  return command.replace(
+    /<<-?\s*(['"]?)([A-Za-z_][A-Za-z0-9_]*)\1[\s\S]*?^[ \t]*\2[ \t]*$/gm,
+    ' '
+  );
+}
+
 function extractFromCommand(command) {
   if (!command || typeof command !== 'string') {
     return [];
@@ -76,14 +96,22 @@ function extractFromCommand(command) {
 
   const paths = [];
 
+  // Heredoc bodies are written data, not arguments — drop them before any scan.
+  const scanned = stripHeredocBodies(command);
+
   // First, extract quoted strings (preserve spaces in paths)
   const quotedPattern = /["']([^"']+)["']/g;
   let match;
-  while ((match = quotedPattern.exec(command)) !== null) {
+  while ((match = quotedPattern.exec(scanned)) !== null) {
     const content = match[1];
 
     // Skip sed/awk regex expressions (s/pattern/replacement/flags)
     if (/^s[\/|@#,]/.test(content)) continue;
+
+    // A quoted value right after an exclude flag is a path being skipped,
+    // not one being read: find -not -path "./x/*", grep --exclude-dir "y".
+    const preceding = scanned.slice(0, match.index).trim().split(/\s+/).pop();
+    if (EXCLUDE_FLAGS.includes(preceding)) continue;
 
     if (looksLikePath(content)) {
       paths.push(normalizeExtractedPath(content));
@@ -91,7 +119,7 @@ function extractFromCommand(command) {
   }
 
   // Remove quoted strings for unquoted path extraction
-  const withoutQuotes = command.replace(/["'][^"']*["']/g, ' ');
+  const withoutQuotes = scanned.replace(/["'][^"']*["']/g, ' ');
 
   // Split on whitespace and extract path-like tokens
   const tokens = withoutQuotes.split(/\s+/).filter(Boolean);
@@ -205,6 +233,10 @@ function isBlockedDirName(token) {
  */
 function looksLikePath(str) {
   if (!str || str.length < 2) return false;
+
+  // A URL is a remote address, not a path on this machine. Without this a
+  // clone URL ending in the VCS suffix reads as a blocked directory.
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(str)) return false;
 
   // Contains path separator
   if (str.includes('/') || str.includes('\\')) return true;
