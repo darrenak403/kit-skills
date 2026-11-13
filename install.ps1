@@ -105,7 +105,7 @@ $AgentPolicies = @{
     'journal-writer' = @{ Tier = 'standard'; ReadOnly = $false }
     'planner' = @{ Tier = 'complex'; ReadOnly = $true }
     'debugger' = @{ Tier = 'complex'; ReadOnly = $false; ExtraTools = @('SlashCommand', 'Task', 'Agent') }
-    'code-reviewer' = @{ Tier = 'complex'; ReadOnly = $true }
+    'code-reviewer' = @{ Tier = 'complex'; ReadOnly = $true; NeedsBash = $true }
     'code-simplifier' = @{ Tier = 'complex'; ReadOnly = $false }
     'advisor' = @{ Tier = 'elite'; ReadOnly = $true; NeedsBash = $true; NeedsWebSearch = $true }
     'kongming' = @{ Tier = 'elite'; ReadOnly = $true; NeedsBash = $true; NeedsWebSearch = $true }
