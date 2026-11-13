@@ -9,7 +9,7 @@ argument-hint: "[--pr] [--ship] [--beta] [--budget lean|normal] [--no-commit] <r
 license: MIT
 metadata:
   author: kit
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # Autopilot
@@ -21,21 +21,51 @@ gates, tests or approval rules.
 
 ## Phase 0: Intake (no skill loads yet)
 
-Classify once, write the result in one line, and do not re-classify later:
+Classify once, write the result in one line, and do not re-classify later.
+Check the rows top to bottom; the first match wins.
 
 | Signal in the request | Route | Phase skills |
 | --- | --- | --- |
-| broken, error, failing, regression, CI red | **fix** | scout (only if location unknown) → `/kit:fix` → `/kit:test` |
-| new capability, enhance, refactor, multi-file | **build** | `/kit:plan` → `/kit:cook` → `/kit:test` |
-| one or two files, obvious change | **quick** | `/kit:cook --fast` → `/kit:test` |
-| visual or UI quality is the point | **ui** | `/kit:frontend-design` (it plans itself) → browser check |
-| existing `plans/**/plan.md` given | **execute** | `/kit:cook <plan>` → `/kit:test` |
-
+| a question: why, how does, where is, explain; no change asked | **ask** | `/kit:scout` (or direct reads under ~20k) → answer with file:line evidence. Stop: no plan, no edits, no commit |
 | GitHub issue URL/number, or `--pr` / `--ship` / `--beta` | **pr** | read `references/pr-mode.md` and follow it: worktree, plan gates, implement, PR, review, optional merge and CI |
+| PR checks red, CI failing on a branch | **ci** | `/kit:fix --auto` on the failing job's log → re-run that job's command locally → push only if asked |
+| redo, fix again, still wrong, revert part of earlier work (a commit, plan or "what you did") | **rework** | see *Rework* below → `/kit:fix` or `/kit:cook --fast` on the delta only → `/kit:test` scoped to the touched files |
+| broken, error, failing, regression | **fix** | scout (only if location unknown) → `/kit:fix` → `/kit:test` |
+| existing `plans/**/plan.md` given | **execute** | `/kit:cook <plan>` → `/kit:test` |
+| visual or UI quality is the point | **ui** | `/kit:frontend-design` (it plans itself) → browser check |
+| security audit, vulnerability, secrets | **security** | `/kit:security` (audit, then guarded fix) → `/kit:test` |
+| docs, README, architecture notes only | **docs** | `/kit:docs` → link and claim check. No code review phase |
+| deploy, release to an environment | **deploy** | `/kit:test` first → `/kit:deploy`. The deploy step itself asks the user |
+| one or two files, obvious change | **quick** | `/kit:cook --fast` → `/kit:test` |
+| new capability, enhance, refactor, multi-file | **build** | `/kit:plan` → `/kit:cook` → `/kit:test` |
 
-Then always: `/kit:code-review` (self-review of the diff) → `/kit:git` commit,
-unless `--no-commit`. Add a domain skill only when the phase hits its domain
-(databases, better-auth, payment, deploy); see `rules/skill-domain-routing.md`.
+Then, for every route that changed code: review at the depth the *Risk tier*
+sets → `/kit:git` commit, unless `--no-commit`. Add a domain skill only when a
+phase hits its domain (databases, better-auth, payment); see
+`rules/skill-domain-routing.md`.
+
+### Rework (earlier work needs changing)
+
+The earlier work already says where to look, so never scout from scratch:
+
+1. Find the anchor: the commit(s) named or the latest ones touching the topic
+   (`git log --oneline -n 10 -- <path>` or `git log -S`), or the plan file.
+2. Read only that diff (`git show --stat`, then the hunks you need), plus the
+   user's statement of what is wrong. This is usually under 10k tokens.
+3. Write one line: expected vs actual. Change only the delta; keep the parts
+   that were right.
+4. Re-run the tests that covered the original change plus one that proves the
+   new expectation. A rework that breaks the earlier intent is a regression.
+
+### Risk tier (sets review depth, not route)
+
+| Tier | When | Review |
+| --- | --- | --- |
+| low | docs, copy, styles, tests only, ≤ 2 files | self-review of the diff, no subagent |
+| normal | default | `/kit:code-review` on the diff |
+| high | auth, payments, data migration, security, public API or schema, deletes data, > 10 files | `/kit:code-review` in a fresh `code-reviewer` subagent (independent eyes are worth its ~25k start), plus the full test suite, not only the narrow one |
+
+State the tier in the intake line, e.g. `route: rework · tier: high · budget: normal`.
 
 Ask the user only when two readings lead to different code. Otherwise state
 the assumption and continue.
