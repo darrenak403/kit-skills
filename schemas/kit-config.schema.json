@@ -1,0 +1,411 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/darrenak403/kit-skills/blob/main/schemas/kit-config.schema.json",
+  "title": "kit-skills Configuration",
+  "description": "Configuration schema for kit-skills .kit.json files",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference for editor autocompletion"
+    },
+    "codingLevel": {
+      "type": "integer",
+      "minimum": -1,
+      "maximum": 5,
+      "default": -1,
+      "description": "User coding experience level: -1=disabled, 0=eli5, 1=junior, 2=mid-level, 3=senior, 4=tech-lead, 5=god-mode"
+    },
+    "docs": {
+      "type": "object",
+      "description": "Documentation settings",
+      "properties": {
+        "maxLoc": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 5000,
+          "default": 800,
+          "description": "Maximum lines of code per documentation file"
+        }
+      },
+      "additionalProperties": false
+    },
+    "plan": {
+      "type": "object",
+      "description": "Plan naming and validation settings",
+      "properties": {
+        "namingFormat": {
+          "type": "string",
+          "default": "{date}-{issue}-{slug}",
+          "description": "Format for plan directory names. Variables: {date}, {issue}, {slug}"
+        },
+        "dateFormat": {
+          "type": "string",
+          "default": "YYMMDD-HHmm",
+          "description": "Date format for plan names (moment.js format)"
+        },
+        "issuePrefix": {
+          "type": "string",
+          "default": "GH-",
+          "description": "Prefix for issue references (e.g., GH-, JIRA-)"
+        },
+        "reportsDir": {
+          "type": "string",
+          "default": "reports",
+          "description": "Subdirectory name for reports within plans"
+        },
+        "resolution": {
+          "type": "object",
+          "description": "Plan resolution settings",
+          "properties": {
+            "order": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "session",
+                  "branch"
+                ]
+              },
+              "default": [
+                "session",
+                "branch"
+              ],
+              "description": "Order of resolution strategies for plan context"
+            },
+            "branchPattern": {
+              "type": "string",
+              "default": "(?:feat|fix|chore|refactor|docs)/(?:[^/]+/)?(.+)",
+              "description": "Regex pattern to extract plan slug from branch name"
+            }
+          },
+          "additionalProperties": false
+        },
+        "validation": {
+          "type": "object",
+          "description": "Plan validation settings",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "prompt",
+                "auto",
+                "strict",
+                "none"
+              ],
+              "default": "prompt",
+              "description": "Validation mode: prompt=ask questions, auto=auto-validate, strict=require all, none=skip"
+            },
+            "minQuestions": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 20,
+              "default": 3,
+              "description": "Minimum validation questions to ask"
+            },
+            "maxQuestions": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 8,
+              "description": "Maximum validation questions to ask"
+            },
+            "focusAreas": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "assumptions",
+                  "risks",
+                  "tradeoffs",
+                  "architecture",
+                  "security",
+                  "performance",
+                  "testing",
+                  "dependencies"
+                ]
+              },
+              "default": [
+                "assumptions",
+                "risks",
+                "tradeoffs",
+                "architecture"
+              ],
+              "description": "Focus areas for validation questions"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "paths": {
+      "type": "object",
+      "description": "Directory paths configuration",
+      "properties": {
+        "docs": {
+          "type": "string",
+          "default": "docs",
+          "description": "Path to documentation directory"
+        },
+        "plans": {
+          "type": "string",
+          "default": "plans",
+          "description": "Path to plans directory"
+        }
+      },
+      "additionalProperties": false
+    },
+    "locale": {
+      "type": "object",
+      "description": "Language and locale settings",
+      "properties": {
+        "thinkingLanguage": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "Language for Claude's thinking (null=English)"
+        },
+        "responseLanguage": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "Language for Claude's responses (null=match user)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "trust": {
+      "type": "object",
+      "description": "Trust mode settings for auto-approval",
+      "properties": {
+        "passphrase": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "Passphrase to enable trust mode (null=disabled)"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether trust mode is currently enabled"
+        }
+      },
+      "additionalProperties": false
+    },
+    "project": {
+      "type": "object",
+      "description": "Project type detection settings",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "library",
+            "application",
+            "monorepo",
+            "cli",
+            "api",
+            "web",
+            "mobile"
+          ],
+          "default": "auto",
+          "description": "Project type (auto=detect from package.json)"
+        },
+        "packageManager": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "npm",
+            "yarn",
+            "pnpm",
+            "bun"
+          ],
+          "default": "auto",
+          "description": "Package manager (auto=detect from lockfile)"
+        },
+        "framework": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "react",
+            "vue",
+            "angular",
+            "svelte",
+            "nextjs",
+            "nuxt",
+            "express",
+            "nestjs",
+            "fastify",
+            "none"
+          ],
+          "default": "auto",
+          "description": "Framework (auto=detect from dependencies)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "gemini": {
+      "type": "object",
+      "description": "Gemini CLI configuration",
+      "properties": {
+        "model": {
+          "type": "string",
+          "enum": [
+            "gemini-2.5-flash",
+            "gemini-2.5-pro",
+            "gemini-3.1-pro-preview",
+            "gemini-3-flash-preview"
+          ],
+          "default": "gemini-3-flash-preview",
+          "description": "Gemini model to use for CLI commands"
+        }
+      },
+      "additionalProperties": false
+    },
+    "skills": {
+      "type": "object",
+      "description": "Per-skill configuration",
+      "properties": {
+        "research": {
+          "type": "object",
+          "properties": {
+            "useGemini": {
+              "type": "boolean",
+              "default": false,
+              "description": "Use Gemini CLI for research (default: false, opt-in). Set to true only if you have a working Gemini CLI."
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": {
+        "type": "object",
+        "description": "Custom skill configuration"
+      }
+    },
+    "assertions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "description": "Glob pattern or regex for files to match"
+          },
+          "rule": {
+            "type": "string",
+            "description": "Assertion rule to enforce"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message when assertion fails"
+          }
+        }
+      },
+      "default": [],
+      "description": "Code assertions and rules to enforce"
+    },
+    "subagent": {
+      "type": "object",
+      "description": "Optional per-agent-type subagent-init tuning. Unset by default.",
+      "properties": {
+        "agents": {
+          "type": "object",
+          "description": "Keyed by agent type name (e.g. 'code-reviewer'). Each entry customizes the context injected at SubagentStart.",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "contextPrefix": {
+                "type": "string",
+                "description": "Text prepended to the injected subagent context for this agent type"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "simplify": {
+      "type": "object",
+      "description": "Config for the simplify-gate hook (see hooks.simplify-gate to enable/disable the hook itself).",
+      "properties": {
+        "threshold": {
+          "type": "object",
+          "description": "Diff-size signals computed live from `git diff HEAD`; any breach triggers the gate.",
+          "properties": {
+            "locDelta": { "type": "integer", "default": 400, "description": "Total added+removed lines across the working tree" },
+            "fileCount": { "type": "integer", "default": 8, "description": "Number of changed/untracked files" },
+            "singleFileLoc": { "type": "integer", "default": 200, "description": "Lines added to any single file" }
+          },
+          "additionalProperties": true
+        },
+        "gate": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true, "description": "Master switch for the gate's blocking/warning behavior (independent of hooks.simplify-gate, which controls whether the hook runs at all)" },
+            "hardVerbs": { "type": "array", "items": { "type": "string" }, "default": ["ship", "merge", "pr", "deploy", "publish"], "description": "Prompt verbs that hard-block (exit 2) when the diff breaches threshold" },
+            "softVerbs": { "type": "array", "items": { "type": "string" }, "default": ["commit", "finalize", "release"], "description": "Prompt verbs that soft-warn (inject context, do not block) when the diff breaches threshold" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "hooks": {
+      "type": "object",
+      "description": "Toggle any of the 8 hooks in hooks/ on/off (set to `false` to disable), keyed by script basename. A disabled hook is omitted from the generated settings at install time and is also re-checked at runtime by the script itself. Unknown keys (from older installs) are ignored, not rejected.",
+      "properties": {
+        "session-init": {
+          "type": "boolean",
+          "default": true,
+          "description": "SessionStart hook - project detection and env setup"
+        },
+        "subagent-init": {
+          "type": "boolean",
+          "default": true,
+          "description": "SubagentStart hook - injects context to subagents"
+        },
+        "secret-output-guardrail": {
+          "type": "boolean",
+          "default": true,
+          "description": "UserPromptSubmit hook - blocks prompts that would echo detected secrets back into the transcript"
+        },
+        "session-state": {
+          "type": "boolean",
+          "default": true,
+          "description": "Stop/SubagentStop hook - persists session progress and todos across sessions"
+        },
+        "privacy-block": {
+          "type": "boolean",
+          "default": true,
+          "description": "PreToolUse hook - blocks reads of .env, credentials, keys, etc. unless user-approved"
+        },
+        "scout-block": {
+          "type": "boolean",
+          "default": true,
+          "description": "PreToolUse hook - blocks access to heavy/irrelevant directories"
+        },
+        "dev-rules-reminder": {
+          "type": "boolean",
+          "default": true,
+          "description": "UserPromptSubmit hook - reinjects dev rules when the last injection is older than a 5-minute TTL (per session and scope)"
+        },
+        "simplify-gate": {
+          "type": "boolean",
+          "default": true,
+          "description": "UserPromptSubmit hook - warns/blocks ship or commit verbs while the working tree carries a large unsimplified diff (thresholds and hard/soft verb lists configurable under the top-level `simplify` key)"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
