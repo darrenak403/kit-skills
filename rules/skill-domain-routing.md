@@ -164,7 +164,9 @@ User wants to...
 
 A few entries above route to skills that ship with Claude rather than to a kit
 skill: `find-skills`, `skill-creator`, `sequential-thinking`, `backend-mindset`,
-and the Office skills `docx` / `pdf` / `pptx` / `xlsx`. The kit once carried its
-own version of each; they were removed because two skills offering the same
-capability make the choice between them ambiguous and degrade both. Invoke these
-by their bare name, with no `kit:` prefix.
+and the Office skills `docx` / `pdf` / `pptx` / `xlsx`. The kit carries its own
+version of each, but the installer leaves them out of the Claude install, because
+two skills offering the same capability make the choice between them ambiguous
+and degrade both. On Claude, invoke these by their bare name, with no `kit:`
+prefix. Codex ships no standalone equivalents, so there the kit's own copies are
+installed and used instead.

@@ -122,6 +122,19 @@ $WriteAgentBaseTools = @(
     'Skill', 'TaskList', 'TaskGet', 'TaskUpdate', 'SendMessage'
 )
 
+# Skills that duplicate a capability Claude already ships as a standalone or
+# plugin skill. Two skills offering the same capability make the choice between
+# them ambiguous and degrade both, so Claude gets only the standalone one. Codex
+# has no standalone equivalents, so it keeps the kit's copies -- which is why
+# this is a Claude-only exclusion and not a deletion from skills/.
+$ClaudeRedundantSkills = @(
+    'kit-backend-development',  # standalone: backend-mindset
+    'kit-document-skills',      # standalone: docx / pdf / pptx / xlsx
+    'kit-find-skills',          # standalone: find-skills
+    'kit-sequential-thinking',  # standalone: sequential-thinking
+    'kit-skill-creator'         # standalone: skill-creator
+)
+
 $ClaudeTiers = @{
     cheap = 'haiku'
     standard = 'sonnet'
@@ -413,6 +426,15 @@ function Copy-CodexHookScripts {
     Remove-Item -LiteralPath (Join-Path $shared 'runtime') -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath (Join-Path $shared 'hooks.json') -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath (Join-Path $shared '.logs') -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+function Remove-RedundantClaudeSkills {
+    param([string]$SkillsRoot)
+
+    foreach ($name in $ClaudeRedundantSkills) {
+        $path = Join-Path $SkillsRoot $name
+        if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force }
+    }
 }
 
 function Prune-InstalledPayload {
@@ -1169,6 +1191,7 @@ try {
                 Copy-SourceDirectory 'rules' $claudeRoot
                 Copy-SourceDirectory 'scripts' $claudeRoot
                 Copy-SourceDirectory 'output-styles' $claudeRoot
+                Remove-RedundantClaudeSkills (Join-Path $claudeRoot 'skills')
                 Prune-InstalledPayload (Join-Path $claudeRoot 'skills')
                 Prune-InstalledPayload (Join-Path $claudeRoot 'scripts')
                 Copy-ClaudeHookScripts $claudeRoot

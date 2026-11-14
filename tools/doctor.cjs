@@ -98,36 +98,69 @@ function checkHookTargets() {
     path.join(CODEX, 'hooks.json'),
   ];
 
+  // Absolute script paths, plus the $HOME / ~ forms both configs use.
+  const PATH_PATTERN = /(?:\$HOME|~|\/Users\/[^\s'"]+?)\/[^\s'"]*?\.(?:cjs|mjs|js|sh|py)/g;
+
+  // Collect every hook command string out of the parsed config, rather than
+  // scanning the raw text: a path has to be judged against the command that
+  // uses it, not against the whole file.
+  function commandsOf(config) {
+    const out = [];
+    for (const groups of Object.values(config.hooks || {})) {
+      for (const group of groups || []) {
+        for (const hook of group.hooks || []) {
+          if (typeof hook.command === 'string') out.push(hook.command);
+        }
+      }
+    }
+    return out;
+  }
+
+  // A command may deliberately tolerate a missing script, e.g.
+  //   if [ -f '/path/x.sh' ] && [ -x '/path/x.sh' ]; then ... ; else : ; fi
+  // Absence is then the designed path, not a fault, so only an UNGUARDED
+  // reference is worth reporting.
+  function isGuarded(command, reference) {
+    const quoted = reference.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(?:\\[\\s*-[a-z]+|\\btest\\s+-[a-z]+)\\s*'?"?${quoted}`).test(command);
+  }
+
   for (const config of configs) {
     if (!fs.existsSync(config)) {
       note('hook', `${tilde(config)} không có — bỏ qua`);
       continue;
     }
 
-    let raw;
+    let parsed;
     try {
-      raw = fs.readFileSync(config, 'utf8');
-      JSON.parse(raw);
+      parsed = JSON.parse(fs.readFileSync(config, 'utf8'));
     } catch (error) {
       fail('hook', `${tilde(config)} không phải JSON hợp lệ: ${error.message}`);
       continue;
     }
 
-    // Absolute script paths, plus the $HOME / ~ forms both configs use.
-    const pattern = /(?:\$HOME|~|\/Users\/[^\s'"]+?)\/[^\s'"]*?\.(?:cjs|mjs|js|sh|py)/g;
-    const found = new Set(raw.match(pattern) || []);
-    let missing = 0;
+    const required = new Map(); // resolved path -> reference as written
+    const guarded = new Set();
 
-    for (const reference of found) {
-      const resolved = reference
-        .replace(/^\$HOME/, HOME)
-        .replace(/^~/, HOME);
+    for (const command of commandsOf(parsed)) {
+      for (const reference of command.match(PATH_PATTERN) || []) {
+        const resolved = reference.replace(/^\$HOME/, HOME).replace(/^~/, HOME);
+        if (isGuarded(command, reference)) guarded.add(resolved);
+        else if (!required.has(resolved)) required.set(resolved, reference);
+      }
+    }
+
+    let missing = 0;
+    for (const resolved of required.keys()) {
       if (!fs.existsSync(resolved)) {
         missing++;
         fail('hook', `${tilde(config)} gọi ${tilde(resolved)} — file không tồn tại`);
       }
     }
-    note('hook', `${tilde(config)}: ${found.size} script được gọi, ${missing} thiếu`);
+
+    const optional = [...guarded].filter((f) => !fs.existsSync(f)).length;
+    const tail = optional > 0 ? `, ${optional} thiếu nhưng có guard nên bỏ qua` : '';
+    note('hook', `${tilde(config)}: ${required.size} script bắt buộc, ${missing} thiếu${tail}`);
   }
 }
 
