@@ -169,6 +169,17 @@ function checkHookTargets() {
 // ---------------------------------------------------------------------------
 // Claude's skill names keep the `kit:` namespace; Codex rewrites them to
 // `kit-`, so compare by directory name, which both sides share.
+// The installer declares which skills it deliberately leaves out of the Claude
+// install, so read that list instead of guessing from what happens to be on
+// disk: an intended exclusion must never read as drift.
+function claudeExclusions() {
+  const installer = path.join(REPO, 'install.ps1');
+  if (!fs.existsSync(installer)) return new Set();
+  const block = /\$ClaudeRedundantSkills\s*=\s*@\(([\s\S]*?)\)/.exec(fs.readFileSync(installer, 'utf8'));
+  if (!block) return new Set();
+  return new Set([...block[1].matchAll(/'([^']+)'/g)].map((m) => m[1]));
+}
+
 function checkSkills() {
   const sourceDir = path.join(REPO, 'skills');
   if (!fs.existsSync(sourceDir)) {
@@ -198,12 +209,15 @@ function checkSkills() {
     note('skill', `${label}: có ${source.length - missing.length}/${source.length} skill của kit`);
   }
 
+  const excluded = claudeExclusions();
   const sides = [...missingBySide.keys()];
   for (const name of source) {
     const absentFrom = sides.filter((side) => missingBySide.get(side).has(name));
     if (absentFrom.length === 0) continue;
     if (absentFrom.length === sides.length && sides.length > 1) {
       fail('skill', `'${name}' thiếu ở CẢ ${sides.join(' và ')} — cài không tới`);
+    } else if (absentFrom.length === 1 && absentFrom[0] === 'Claude' && excluded.has(name)) {
+      note('skill', `'${name}' bị install.ps1 loại khỏi Claude có chủ đích`);
     } else {
       // Name the likely replacement so the reader can confirm it was a choice.
       const bare = name.replace(/^kit-/, '');
